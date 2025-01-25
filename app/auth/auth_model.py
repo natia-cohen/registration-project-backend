@@ -1,5 +1,3 @@
-from pydantic import BaseModel, EmailStr, Field
-
 from pydantic import BaseModel, EmailStr, Field, root_validator
 
 class UserSignup(BaseModel):
@@ -13,7 +11,6 @@ class UserSignup(BaseModel):
             raise ValueError("Passwords do not match")
         return values
 
-            
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
