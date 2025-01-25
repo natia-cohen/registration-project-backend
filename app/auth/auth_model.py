@@ -3,14 +3,21 @@ from pydantic import BaseModel, EmailStr, Field, root_validator
 class UserSignup(BaseModel):
     email: EmailStr
     password: str
-    confirmPassword: str = Field(..., min_length=6)
 
     @root_validator(pre=True)
     def validate_passwords(cls, values):
-        if values.get("password") != values.get("confirmPassword"):
+        confirm_password = values.pop("confirmPassword", None)  
+        if not confirm_password or values.get("password") != confirm_password:
             raise ValueError("Passwords do not match")
         return values
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
