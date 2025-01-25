@@ -5,4 +5,4 @@ client = MongoClient(MONGO_URI)
 
 
 db = client["registration_db"]
-users_collection = db["users"]
+users_collection = db["auth"]
