@@ -30,7 +30,23 @@ def verify_password(plain_password, hashed_password):
 def hash_password(password):
     return pwd_context.hash(password)
 
-def create_reset_token(email):
+def create_reset_token(email: str):
     expiration = datetime.utcnow() + timedelta(hours=1)  
-    payload = {"sub": email, "exp": expiration}
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    payload = {"sub": email, "exp": expiration} 
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
+def verify_reset_token(token):
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload["sub"]
+    except jwt.ExpiredSignatureError:
+        return None  
+    except jwt.InvalidTokenError:
+        return None  
+
+
+def update_user_password(email, new_password):
+    hashed_password = pwd_context.hash(new_password)
+    users_collection.update_one({"email": email}, {"$set": {"password": hashed_password}})

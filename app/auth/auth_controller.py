@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from app.auth.auth_model import UserSignup, UserLogin, ForgotPasswordRequest
-from app.auth.auth_service import create_user, get_user_by_email, verify_password, create_reset_token
+from app.auth.auth_service import create_user, get_user_by_email, verify_password, create_reset_token, update_user_password, verify_reset_token
 from app.auth.mail_service import send_reset_email
 
 async def login(user: UserLogin):
@@ -31,3 +31,20 @@ async def forgot_password(email: str):
     await send_reset_email(email, reset_token)
 
     return {"message": "Reset password email sent successfully"}
+
+async def reset_password(token: str, new_password: str):
+    print(f"🚀 Resetting password for token: {token}")
+
+    email = verify_reset_token(token) 
+    print(f"🔍 Decoded email from token: {email}")
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+    user = get_user_by_email(email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    update_user_password(email, new_password)
+
+    return {"message": "Password reset successfully"}
